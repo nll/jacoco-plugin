@@ -6,10 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.jacoco.core.analysis.Analyzer;
+import hudson.plugins.jacoco.JacocoFileVersion;
+import hudson.plugins.jacoco.analyzer.Analyzer;
+import hudson.plugins.jacoco.data.ExecutionDataReader;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.data.ExecutionDataReader;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 
@@ -27,6 +28,8 @@ public class ModuleInfo {
 		private SessionInfoStore sessionInfoStore;
 
 		private IBundleCoverage bundleCoverage;
+
+		private JacocoFileVersion version = JacocoFileVersion.CURRENT;
 
 		public IBundleCoverage getBundleCoverage() {
 			return bundleCoverage;
@@ -66,9 +69,9 @@ public class ModuleInfo {
 		}
 		private void loadExecutionData() throws IOException {
 	    	File executionDataFile = new File(execFile.getRemote());
+	    	version = JacocoFileVersion.readFromFile(executionDataFile);
 			final FileInputStream fis = new FileInputStream(executionDataFile);
-			final ExecutionDataReader executionDataReader = new ExecutionDataReader(
-					fis);
+			final ExecutionDataReader executionDataReader = version.createExecutionDataReader(fis);
 			executionDataStore = new ExecutionDataStore();
 			sessionInfoStore = new SessionInfoStore();
 
@@ -83,8 +86,7 @@ public class ModuleInfo {
 	    private IBundleCoverage analyzeStructure() throws IOException {
 			File classDirectory = new File(classDir.getRemote());
 			final CoverageBuilder coverageBuilder = new CoverageBuilder();
-			final Analyzer analyzer = new Analyzer(executionDataStore,
-					coverageBuilder);
+			final Analyzer analyzer = version.createAnalyzer(executionDataStore, coverageBuilder);
 
 			analyzer.analyzeAll(classDirectory);
 

@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import hudson.plugins.jacoco.analyzer.Analyzer;
+import hudson.plugins.jacoco.data.ExecutionDataReader;
 import org.codehaus.plexus.util.FileUtils;
-import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
-import org.jacoco.core.data.ExecutionDataReader;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.maven.FileFilter;
@@ -37,8 +37,10 @@ public class ExecutionFileLoader implements Serializable {
 		private SessionInfoStore sessionInfoStore;
 		
 		private IBundleCoverage bundleCoverage;
-		
-		private ArrayList<FilePath> execFiles; 
+
+		private JacocoFileVersion version = JacocoFileVersion.CURRENT;
+
+		private ArrayList<FilePath> execFiles;
 		
 		public ExecutionFileLoader() {
 			execFiles= new ArrayList<>();
@@ -82,13 +84,18 @@ public class ExecutionFileLoader implements Serializable {
 			
 			executionDataStore = new ExecutionDataStore();
 			sessionInfoStore = new SessionInfoStore();
+
+			boolean versionInferred = false;
 			
 			for (FilePath filePath : execFiles) {
 				File executionDataFile = new File(filePath.getRemote());
+				if(!versionInferred) {
+					version = JacocoFileVersion.readFromFile(executionDataFile);
+					versionInferred = true;
+				}
 				try {
-					try (final InputStream inputStream = new BufferedInputStream(
-							new FileInputStream(executionDataFile))) {
-						final ExecutionDataReader reader = new ExecutionDataReader(inputStream);
+					try (final InputStream inputStream = new BufferedInputStream(new FileInputStream(executionDataFile))) {
+						final ExecutionDataReader reader = version.createExecutionDataReader(inputStream);
 						reader.setSessionInfoVisitor(sessionInfoStore);
 						reader.setExecutionDataVisitor(executionDataStore);
 						reader.read();
@@ -99,12 +106,12 @@ public class ExecutionFileLoader implements Serializable {
 	            }
 	        }
 		}
+
 	    private IBundleCoverage analyzeStructure() throws IOException {
 	    	
 			File classDirectory = new File(classDir.getRemote());
 			final CoverageBuilder coverageBuilder = new CoverageBuilder();
-			final Analyzer analyzer = new Analyzer(executionDataStore,
-					coverageBuilder);
+			final Analyzer analyzer = version.createAnalyzer(executionDataStore, coverageBuilder);
 			
 			if (includes==null) {
 				includes = STARSTAR;

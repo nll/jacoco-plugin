@@ -134,6 +134,11 @@ THE SOFTWARE.
 	    <version>${jacoco.version}</version>
 	  </dependency>
       <dependency>
+           <groupId>org.sonarsource.java</groupId>
+           <artifactId>java-jacoco-previous</artifactId>
+           <version>4.6.0.8784</version>
+       </dependency>
+       <dependency>
 			<groupId>org.kohsuke</groupId>
 			<artifactId>asm5</artifactId>
 			<version>5.0.1</version>
