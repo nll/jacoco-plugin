@@ -179,10 +179,9 @@ public class JacocoPublisher extends Recorder implements SimpleBuildStep {
     	}
     	try {
     		String expandedInput = env.expand(input);
-            //noinspection ResultOfMethodCallIgnored
-            return Integer.parseInt(expandedInput);
-    	} catch(NumberFormatException nfe) {
-    		return  THRESHOLD_DEFAULT;
+    		return Integer.parseInt(expandedInput);
+    	} catch (NumberFormatException e) {
+    		return THRESHOLD_DEFAULT;
     	}
     }
 
@@ -485,43 +484,39 @@ public class JacocoPublisher extends Recorder implements SimpleBuildStep {
 		sourceFolder.copyRecursiveTo(destFolder);
 	}
 	
-    protected String resolveFilePaths(Run<?, ?> build, TaskListener listener, String input, Map<String, String> env) {
+    protected String resolveFilePaths(Run<?, ?> build, TaskListener listener, String input, Map<String, String> env)
+            throws InterruptedException, IOException {
         try {
-
             final EnvVars environment = build.getEnvironment(listener);
             environment.overrideAll(env);
             return environment.expand(input);
-            
-        } catch (Exception e) {
-            listener.getLogger().println("Failed to resolve parameters in string \""+
-            input+"\" due to following error:\n"+e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("Failed to resolve parameters in string \""+
+                    input+"\"", e);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to resolve parameters in string \""+
+                    input+"\"", e);
         }
-        return input;
     }
 
-    protected String resolveFilePaths(AbstractBuild<?, ?> build, TaskListener listener, String input) {
+    protected String resolveFilePaths(AbstractBuild<?, ?> build, TaskListener listener, String input)
+            throws InterruptedException, IOException {
         try {
-
             final EnvVars environment = build.getEnvironment(listener);
             environment.overrideAll(build.getBuildVariables());
             return environment.expand(input);
-
-        } catch (Exception e) {
-            listener.getLogger().println("Failed to resolve parameters in string \""+
-                    input+"\" due to following error:\n"+e.getMessage());
+        } catch (IOException e) {
+            throw new IOException("Failed to resolve parameters in string \""+
+                    input+"\"", e);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to resolve parameters in string \""+
+                    input+"\"", e);
         }
-        return input;
     }
 
-    protected static FilePath[] resolveDirPaths(FilePath workspace, TaskListener listener, final String input) {
-		//final PrintStream logger = listener.getLogger();
-		FilePath[] directoryPaths = null;
-		try {
-            directoryPaths = workspace.act(new ResolveDirPaths(input));
-		} catch(InterruptedException | IOException ie) {
-			ie.printStackTrace();
-		}
-        return directoryPaths;
+    protected static FilePath[] resolveDirPaths(FilePath workspace, TaskListener listener, final String input)
+            throws InterruptedException, IOException {
+		return workspace.act(new ResolveDirPaths(input));
 	}
 
 
@@ -674,7 +669,7 @@ public class JacocoPublisher extends Recorder implements SimpleBuildStep {
                     convertThresholdInputToInteger(minimumComplexityCoverage, env), 
                     convertThresholdInputToInteger(maximumComplexityCoverage, env)
                 );
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException e) {
             return healthReports = new JacocoHealthReportThresholds(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
     }
