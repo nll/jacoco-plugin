@@ -13,8 +13,8 @@ import java.io.*;
 
 public enum JacocoFileVersion implements JacocoSupportFactory {
 
-    PREVIOUS(org.jacoco.previous.core.data.ExecutionDataWriter.FORMAT_VERSION, new JacocoSupportFactoryImp()),
-    CURRENT(org.jacoco.core.data.ExecutionDataWriter.FORMAT_VERSION, new JacocoSupportFactoryPreviousImp());
+    PREVIOUS(org.jacoco.previous.core.data.ExecutionDataWriter.FORMAT_VERSION, new JacocoSupportFactoryPreviousImp()),
+    CURRENT(org.jacoco.core.data.ExecutionDataWriter.FORMAT_VERSION, new JacocoSupportFactoryImp());
 
     private final char version;
     private final JacocoSupportFactory factory;
