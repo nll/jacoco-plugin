@@ -23,6 +23,7 @@ import org.jacoco.maven.FileFilter;
 
 
 public class ExecutionFileLoader implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final static String[] STARSTAR = {"**"};
     private final static String[] ITEM_ZERO = {"{0}"};
     
@@ -33,10 +34,10 @@ public class ExecutionFileLoader implements Serializable {
 		private String[] includes;
 		private String[] excludes;
 		
-		private ExecutionDataStore executionDataStore;
-		private SessionInfoStore sessionInfoStore;
+		private transient ExecutionDataStore executionDataStore;
+		private transient SessionInfoStore sessionInfoStore;
 		
-		private IBundleCoverage bundleCoverage;
+		private transient IBundleCoverage bundleCoverage;
 
 		private JacocoFileVersion version = JacocoFileVersion.CURRENT;
 
@@ -86,7 +87,7 @@ public class ExecutionFileLoader implements Serializable {
 			sessionInfoStore = new SessionInfoStore();
 
 			boolean versionInferred = false;
-			
+
 			for (FilePath filePath : execFiles) {
 				File executionDataFile = new File(filePath.getRemote());
 				if(!versionInferred) {

@@ -139,6 +139,32 @@ public class JacocoPublisher extends Recorder implements SimpleBuildStep {
 
 	/**
      * Loads the configuration set by user.
+	 * @param execPattern deprecated
+	 * @param classPattern deprecated 
+	 * @param sourcePattern deprecated
+	 * @param inclusionPattern deprecated
+	 * @param exclusionPattern deprecated
+	 * @param skipCopyOfSrcFiles deprecated
+	 * @param maximumInstructionCoverage deprecated
+	 * @param maximumBranchCoverage deprecated
+	 * @param maximumComplexityCoverage deprecated
+	 * @param maximumLineCoverage deprecated
+	 * @param maximumMethodCoverage deprecated
+	 * @param maximumClassCoverage deprecated
+	 * @param minimumInstructionCoverage deprecated
+	 * @param minimumBranchCoverage deprecated
+	 * @param minimumComplexityCoverage deprecated
+	 * @param minimumLineCoverage deprecated
+	 * @param minimumMethodCoverage deprecated
+	 * @param minimumClassCoverage deprecated
+	 * @param changeBuildStatus deprecated
+	 * @param deltaInstructionCoverage deprecated
+	 * @param deltaBranchCoverage deprecated
+	 * @param deltaComplexityCoverage deprecated
+	 * @param deltaLineCoverage deprecated
+	 * @param deltaMethodCoverage deprecated
+	 * @param deltaClassCoverage deprecated
+	 * @param buildOverBuild deprecated
      */
     @Deprecated
     public JacocoPublisher(String execPattern, String classPattern, String sourcePattern, String inclusionPattern, String exclusionPattern, boolean skipCopyOfSrcFiles, String maximumInstructionCoverage, String maximumBranchCoverage
@@ -733,11 +759,15 @@ public class JacocoPublisher extends Recorder implements SimpleBuildStep {
      */
     public static /*final*/ BuildStepDescriptor<Publisher> DESCRIPTOR;
 
+    private static final void setDescriptor(BuildStepDescriptor<Publisher> descriptor) {
+        DESCRIPTOR = descriptor;
+    }
+
     @Extension @Symbol("jacoco")
     public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         public DescriptorImpl() {
             super(JacocoPublisher.class);
-            DESCRIPTOR = this;
+            setDescriptor(this);
         }
 
 		@Override
